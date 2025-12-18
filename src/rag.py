@@ -84,3 +84,66 @@ def retrieve_top_documents(query: str, k: int = 3) -> str:
         )
 
     return "\n---\n".join(chunks)
+import lancedb
+from pydantic import BaseModel
+from pydantic_ai import Agent
+from sentence_transformers import SentenceTransformer
+
+from .config import settings
+from .prompts import SYSTEM_PROMPT
+
+class RAGAnswer(BaseModel):
+    answer: str
+    sources: list[str]  # t.ex. ["video1_3", "video2_7"]
+
+class RAGBot:
+    def __init__(self):
+        self.db = lancedb.connect(settings.lancedb_dir)
+        self.tbl = self.db.open_table(settings.table_name)
+        self.embedder = SentenceTransformer(settings.embed_model)
+
+        # PydanticAI agent (LLM)
+        self.agent = Agent(
+            model=settings.openai_model,
+            system_prompt=SYSTEM_PROMPT,
+            result_type=RAGAnswer,
+        )
+
+    def retrieve(self, question: str, k: int = 5):
+        qvec = self.embedder.encode([question], normalize_embeddings=True).tolist()[0]
+        res = (
+            self.tbl.search(qvec)
+            .limit(k)
+            .select(["id", "video_id", "chunk_index", "text"])
+            .to_list()
+        )
+        return res
+
+    async def answer(self, question: str, k: int = 5) -> RAGAnswer:
+        hits = self.retrieve(question, k=k)
+
+        context_blocks = []
+        sources = []
+        for h in hits:
+            sources.append(h["id"])
+            context_blocks.append(
+                f"[source={h['id']} video_id={h['video_id']} chunk_index={h['chunk_index']}]\n{h['text']}"
+            )
+
+        context = "\n\n---\n\n".join(context_blocks)
+
+        prompt = f"""
+KONTEXT:
+{context}
+
+FRÅGA:
+{question}
+
+Svara på svenska.
+"""
+        result = await self.agent.run(prompt)
+        # säkerställ sources även om modellen glömmer
+        out = result.data
+        if not out.sources:
+            out.sources = sources
+        return out

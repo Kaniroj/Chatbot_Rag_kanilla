@@ -19,3 +19,15 @@ streamlit
 ipykernel
 pydantic-ai
 
+uvicorn[standard]
+pydantic
+pydantic-ai
+
+
+pyarrow
+pandas
+numpy
+
+sentence-transformers
+openai
+tiktoken

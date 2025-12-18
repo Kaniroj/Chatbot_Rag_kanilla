@@ -1,3 +1,0 @@
-$a59c982c-8fb2-4e61-b4cc-023218817c73²doc_id ÿÿÿÿÿÿÿÿÿ*string8!filepath ÿÿÿÿÿÿÿÿÿ*string8!filename ÿÿÿÿÿÿÿÿÿ*string8 content ÿÿÿÿÿÿÿÿÿ*string88	embedding ÿÿÿÿÿÿÿÿÿ*fixed_size_list:float:307208"'
-lance.auto_cleanup.older_than14days"!
-lance.auto_cleanup.interval20
