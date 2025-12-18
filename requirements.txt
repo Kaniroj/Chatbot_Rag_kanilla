@@ -1,7 +1,10 @@
 fastapi
 pydantic>=2.0
 pydantic-ai
-google-generativeai
+google-genai
+pydantic-settings
+python-dotenv
+
 lancedb
 numpy
 pandas
@@ -14,5 +17,5 @@ uvicorn
 pypdf
 streamlit
 ipykernel
-
+pydantic-ai
 
