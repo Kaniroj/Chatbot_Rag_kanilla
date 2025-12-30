@@ -31,3 +31,14 @@ numpy
 sentence-transformers
 openai
 tiktoken
+
+fastapi
+uvicorn
+lancedb
+pyarrow
+pandas
+python-dotenv
+sentence-transformers
+google-genai
+azure-functions
+requests
